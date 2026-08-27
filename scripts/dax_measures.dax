@@ -1,0 +1,103 @@
+// ============================================================================
+// Meta_Ad_Performance_Dashboard - DAX Measures
+// Extracted directly from Meta_Ad_Performance_Dashboard.pbix (all 19 measures,
+// verbatim). All measures live on the `ad_events` table.
+// ============================================================================
+
+// ---- Core event counts ----
+
+Impressions =
+COUNTROWS(FILTER(ad_events, ad_events[event_type] = "Impression"))
+
+Clicks =
+COUNTROWS(FILTER(ad_events, ad_events[event_type] = "Click"))
+
+Shares =
+COUNTROWS(FILTER(ad_events, ad_events[event_type] = "Share"))
+
+Comments =
+COUNTROWS(FILTER(ad_events, ad_events[event_type] = "Comment"))
+
+Purchases =
+COUNTROWS(FILTER(ad_events, ad_events[event_type] = "Purchase"))
+
+// NOTE: `Like` is a 6th event_type present in the raw data (12,013 of 400,000
+// rows) that has no measure of its own and is NOT included in Engagements below.
+// See logs/data_processing_log.md.
+
+Engagements =
+[Shares] + [Clicks] + [Comments]
+
+
+// ---- Efficiency / rate metrics ----
+// DIVIDE(...,...,0) returns 0 instead of erroring on a divide-by-zero.
+
+CTR (Click Through Rate) =
+DIVIDE([Clicks], [Impressions], 0)
+
+Engagement Rate =
+DIVIDE([Engagements], [Impressions], 0)
+
+Conversion Rate =
+DIVIDE([Purchases], [Clicks], 0)
+
+Purchase Rate =
+DIVIDE([Purchases], [Impressions], 0)
+
+
+// ---- Budget ----
+
+Total Budget =
+SUM(campaigns[total_budget])
+
+Avg Budget Per Campaign =
+AVERAGE(campaigns[total_budget])
+
+
+// ---- Dynamic chart titles ----
+// These read the currently-selected option from the disconnected
+// "Select Dynamic Measure" table (see below) so a single donut/bar/area chart
+// can show Impressions, Engagements, Clicks, Shares, Comments, or Purchases,
+// with its title updating to match.
+
+Gender Tittle =
+SELECTEDVALUE('Select Dynamic Measure'[Dynamic Tittle]) & " by Gender"
+
+Age Tittle =
+SELECTEDVALUE('Select Dynamic Measure'[Dynamic Tittle]) & " by Age"
+
+Map Tittle =
+SELECTEDVALUE('Select Dynamic Measure'[Dynamic Tittle]) & " by Country"
+
+Calendar Tittle =
+"Analysis by Month"
+
+Weekly Tittle =
+"Weekly " & SELECTEDVALUE('Select Dynamic Measure'[Dynamic Tittle]) & " Trend"
+
+Hourly Tittle =
+"Hourly " & SELECTEDVALUE('Select Dynamic Measure'[Dynamic Tittle]) & " Trend"
+
+Matrix Tittle =
+"Analysis by Ad Type"
+
+// NOTE: "Tittle" (not "Title") is the actual spelling used throughout the
+// original file - kept as-is here since renaming it would break every visual
+// that references these measures by name. Worth a find-and-replace across the
+// report if you want to clean it up (rename in Power BI Desktop, not by
+// editing this file directly).
+
+
+// ============================================================================
+// Supporting calculated table: the dynamic-metric switcher parameter
+// ============================================================================
+
+'Select Dynamic Measure' =
+{
+    ("Impressions", NAMEOF('ad_events'[Impressions]), 0),
+    ("Engagements", NAMEOF('ad_events'[Engagements]), 1),
+    ("Clicks",      NAMEOF('ad_events'[Clicks]),      2),
+    ("Shares",      NAMEOF('ad_events'[Shares]),      3),
+    ("Comments",    NAMEOF('ad_events'[Comments]),    4),
+    ("Purchases",   NAMEOF('ad_events'[Purchases]),   5)
+}
