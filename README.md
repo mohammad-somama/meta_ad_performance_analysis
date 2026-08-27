@@ -189,8 +189,8 @@ re-extract it from the `.pbix` unless you want to confirm the process in
 
 ## Author & Contact
 
--  Mohammad Somama
--  Data Analyst
+  Mohammad Somama
+  Data Analyst
 - **Email:** [mohammadsomama01@gmail.com](mailto:mohammadsomama01@gmail.com)
 - **LinkedIn:** [LinkedIn Profile](https://www.linkedin.com/in/mohammad-somama-67a825315/)
 - **GitHub:** [Mohammad Somama](https://github.com/mohammad-somama)
